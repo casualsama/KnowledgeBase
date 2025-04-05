@@ -1,35 +1,42 @@
-name: Deploy VitePress
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main  # 或你默认的主分支
 
 permissions:
   contents: read
   pages: write
   id-token: write
-  deployments: write
-  actions: read  # 关键权限
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          version: 8.6.12
-      - uses: actions/setup-node@v3
+          node-version: '18' # 可根据需要修改版本
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          node-version: 18
-          cache: 'pnpm'
-      - run: pnpm install
-      - run: |
-          pnpm run docs:build
-          touch .vitepress/dist/.nojekyll
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .vitepress/dist
+          path: ./dist  # 这里是你构建后的输出目录
 
   deploy:
     needs: build
@@ -37,6 +44,8 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
-      - uses: actions/deploy-pages@v3
+      - name: Deploy to GitHub Pages
         id: deployment
+        uses: actions/deploy-pages@v3
