@@ -4,53 +4,71 @@ on:
   push:
     branches: [main]
 
+# 显式锁定所有 actions 版本
+env:
+  ACTIONS_VERSION: v2 # 全局版本控制变量
+
 permissions:
   contents: read
   pages: write
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
 
 jobs:
-  build:
+  clean-cache:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Clear Actions cache
+        run: |
+          sudo find /usr/local/lib/actions -name "*upload-artifact*" -exec rm -rf {} \;
+          sudo rm -rf ~/.npm/_cacache
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+  build:
+    needs: clean-cache
+    runs-on: ubuntu-20.04 # 使用更稳定的旧版 Runner
+    steps:
+      - name: Checkout (锁版本)
+        uses: actions/checkout@v3.5.3
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm (锁版本)
+        uses: pnpm/action-setup@v2.2.4
         with:
           version: 8
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Node.js (锁版本)
+        uses: actions/setup-node@v3.7.0
         with:
           node-version: 18
-          cache: "pnpm"
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm store prune
 
       - name: Build with VitePress
         run: |
           pnpm run docs:build
           touch .vitepress/dist/.nojekyll
 
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v2
+      - name: Upload artifact (强制v2)
+        uses: actions/upload-pages-artifact@v2.1.4
         with:
           path: .vitepress/dist
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy (强制v2)
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v2.2.4
