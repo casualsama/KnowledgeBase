@@ -1,4 +1,4 @@
-name: Deploy VitePress site to Pages
+name: Deploy VitePress to GitHub Pages
 
 on:
   push:
@@ -18,31 +18,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8.6.12
-          
-      - name: Setup Node
+
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: pnpm
-          
+          cache: 'pnpm'
+
       - name: Install dependencies
         run: pnpm install
-        
+
       - name: Build with VitePress
         run: |
           pnpm run docs:build
           touch .vitepress/dist/.nojekyll
-          
+
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2  # 改用 v2 更稳定
+        uses: actions/upload-pages-artifact@v2
         with:
           path: .vitepress/dist
 
@@ -51,8 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deploy-to-pages.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
-        id: deploy-to-pages
-        uses: actions/deploy-pages@v2  # 与 upload-pages-artifact@v2 版本匹配
+        id: deployment
+        uses: actions/deploy-pages@v2
