@@ -1,4 +1,4 @@
-name: Deploy VitePress site to Pages
+name: Deploy VitePress
 
 on:
   push:
@@ -9,39 +9,25 @@ permissions:
   pages: write
   id-token: write
   deployments: write
-  actions: read  # 关键修复
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
+  actions: read  # 关键权限
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      run_id: ${{ github.run_id }}  # 传递运行ID
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
         with:
           version: 8.6.12
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
-      - name: Build with VitePress
-        run: |
+      - run: pnpm install
+      - run: |
           pnpm run docs:build
           touch .vitepress/dist/.nojekyll
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: .vitepress/dist
 
@@ -52,6 +38,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - uses: actions/deploy-pages@v3
         id: deployment
-        uses: actions/deploy-pages@v3
