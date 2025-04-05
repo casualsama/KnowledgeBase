@@ -3,6 +3,7 @@ import { set_sidebar } from './utils/auto_sidebar.mjs'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  base: "KnowledgeBase",
   title: "Casualの知识库",
   description: "A VitePress Site",
   themeConfig: {
