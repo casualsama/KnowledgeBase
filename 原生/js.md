@@ -50,7 +50,7 @@ closure(); // 2
 
 #### 闭包的实际应用
 
-**一 、创建私有变量**
+##### 一、创建私有变量
 
 ``` js
 function createCounter() {
@@ -68,7 +68,7 @@ console.log(counter.getCount()); // 1
 console.log(count); // ReferenceError: count未定义
 ```
 
-**二、 模块模式**
+##### 二、模块模式
 
 ```js
 const calculator = (function() {
@@ -84,7 +84,7 @@ calculator.add(5);
 console.log(calculator.getMemory()); // 5
 ```
 
-三、 **函数工厂**
+##### 三、函数工厂
 
 ```js
 function createMultiplier(factor) {
@@ -117,7 +117,7 @@ console.log(triple(5)); // 15
 >
 > 也就是说，**声明会被提前，但赋值不会被提前。**
 
-**一、var的提升 **
+##### 一、var的提升 
 
 - 声明会被提升到函数或全局作用域顶部。
 - 初始值不会提升，未赋值前访问是 `undefined`。
@@ -127,7 +127,7 @@ console.log(a); // undefined
 var a = 10;
 ```
 
-**二、let 和 const 的提升 **
+##### 二、let 和 const 的提升 
 
 - 声明也会被提升，但**不会初始化**。
 - 在声明之前访问，会报错：**ReferenceError**。
@@ -148,7 +148,7 @@ const c = 20;
 | let    | 是       | 否        | 报错（TDZ）    |
 | const  | 是       | 否        | 报错（TDZ）    |
 
-**三、函数声明 **
+##### 三、函数声明
 
 - 会被完整提升（包括函数体）。
 - 可以在声明前调用。
@@ -160,7 +160,7 @@ function foo() {
 }
 ```
 
-**四、函数表达式 **
+##### 四、函数表达式
 
 - 变量提升了，但函数体不会。
 - 如果是 `var`，访问是 `undefined`，执行报错。
@@ -172,7 +172,7 @@ var bar = function () {
 };
 ```
 
-**五、箭头函数表达式 **
+##### 五、箭头函数表达式
 
 - 本质也是函数表达式。
 - `let` / `const` 声明时，在 TDZ 内访问会直接报错。
